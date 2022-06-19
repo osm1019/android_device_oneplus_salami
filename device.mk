@@ -8,6 +8,13 @@
 PRODUCT_AAPT_CONFIG := normal
 PRODUCT_AAPT_PREF_CONFIG := xxxhdpi
 
+
+# Alert slider
+PRODUCT_PACKAGES += \
+    KeyHandler \
+    tri-state-key-calibrate \
+    DeviceSettings
+
 # Audio
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/audio/audio_policy_volumes.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio_policy_volumes.xml \
@@ -27,6 +34,16 @@ $(call soong_config_set_bool,qtidisplay,pxlw_hw_iris7,true)
 # Fingerprint
 $(call soong_config_set,surfaceflinger,udfps_lib,//hardware/oplus:libudfps_extension.oplus)
 $(call soong_config_set_bool,qtidisplay,oplus_udfps,true)
+
+PRODUCT_SYSTEM_PROPERTIES += \
+    sys.brightness.disable_gamma_conversion=true
+
+# Fingerprint
+TARGET_HAS_UDFPS := true
+
+# LiveDisplay
+$(call soong_config_set_bool,OPLUS_LINEAGE_LIVEDISPLAY_HAL,ENABLE_AF,true)
+
 
 # Overlays
 DEVICE_PACKAGE_OVERLAYS += \
