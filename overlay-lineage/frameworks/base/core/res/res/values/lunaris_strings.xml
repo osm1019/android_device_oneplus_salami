@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2015-2016 The CyanogenMod Project
+                   2017-2021 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="lunaris_device_message">OnePlus 11 5G</string>
+    <string name="lunaris_processor_code_message">Snapdragon® 8 Gen 2</string>
+    <string name="lunaris_battery_type_message">5000 mAh</string>
+    <string name="lunaris_screen_message">120 Hz Super Fluid AMOLED </string>
+</resources>

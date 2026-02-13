@@ -10,5 +10,8 @@
 
     <!-- Whether key handler sends intent when changing slider position -->
     <string name="config_alertSliderIntent">org.lineageos.device.settings.UPDATE_SLIDER_POSITION</string>
+        
+    <!-- System Info -->
+<integer name="config_sysCPUTempMultiplier">1000</integer>
 
 </resources>
