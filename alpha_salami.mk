@@ -12,9 +12,9 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
 $(call inherit-product, device/oneplus/salami/device.mk)
 
 # Inherit some common Lineage stuff.
-$(call inherit-product, vendor/lineage/config/common_full_phone.mk)
+$(call inherit-product, vendor/alpha/config/common_full_phone.mk)
 
-PRODUCT_NAME := lineage_salami
+PRODUCT_NAME := alpha_salami
 PRODUCT_DEVICE := salami
 PRODUCT_MANUFACTURER := OnePlus
 PRODUCT_BRAND := OnePlus
