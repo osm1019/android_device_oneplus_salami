@@ -14,10 +14,9 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="lunaris_device_message">OnePlus 13</string>
-    <string name="lunaris_processor_code_message">Snapdragon® 8 Elite</string>
-    <string name="lunaris_battery_type_message">6000 mAh</string>
-    <string name="lunaris_screen_message">120Hz ProXDR Display</string>
+<resources>
+    <string name="lunaris_device_message">OnePlus 11 5G</string>
+    <string name="lunaris_processor_code_message">Snapdragon® 8 Gen 2</string>
+    <string name="lunaris_battery_type_message">5000 mAh</string>
+    <string name="lunaris_screen_message">120 Hz Super Fluid AMOLED </string>
 </resources>

@@ -443,5 +443,13 @@
 
     <!-- Whether devices suports in-display fingerprint when screen is off -->
     <bool name="config_supportScreenOffUdfps">true</bool>
+    
+    
+    <!-- System Info -->
+    <integer name="config_sysCPUTempMultiplier">1000</integer>
+
+    <!-- Whether the device supports Smart Pixels -->
+    <bool name="config_supportSmartPixels">true</bool>
+
 
 </resources>
