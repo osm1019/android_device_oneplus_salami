@@ -69,6 +69,11 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/recovery/root/vendor/odm/etc/22861/build.NA.prop:$(TARGET_COPY_OUT_ODM)/etc/22861/build.NA.prop \
     $(LOCAL_PATH)/recovery/root/vendor/odm/etc/22861/build.default.prop:$(TARGET_COPY_OUT_ODM)/etc/22861/build.default.prop
 
+
+#SurfaceFlinger Refresh Rate
+$(call soong_config_set,surfaceflinger,frame_rate_category_high,120)
+$(call soong_config_set,surfaceflinger,frame_rate_category_min,60)
+
 # Sensors
 PRODUCT_PACKAGES += \
     sensors.oplus
