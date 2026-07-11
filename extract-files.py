@@ -58,15 +58,35 @@ blob_fixups: blob_fixups_user_type = {
         'odm/lib64/libyuv2.so'
     ): blob_fixup()
         .replace_needed('libstdc++.so', 'libstdc++_vendor.so'),
-    (
-        'odm/lib64/libHIS.so',
-        'odm/lib64/libOGLManager.so'
-    ): blob_fixup()
+    'odm/lib64/libOGLManager.so': blob_fixup()
         .clear_symbol_version('AHardwareBuffer_allocate')
         .clear_symbol_version('AHardwareBuffer_describe')
         .clear_symbol_version('AHardwareBuffer_lock')
         .clear_symbol_version('AHardwareBuffer_release')
         .clear_symbol_version('AHardwareBuffer_unlock'),
+    # libui ABI-shadow fix (aston 166b8fe9). The odm camera algo libs were built against
+    # ColorOS's smaller GraphicBuffer; on A16 the platform libui GraphicBuffer is larger, so
+    # ~GraphicBuffer() walks past the chunk -> SIGSEGV in the camera provider on teardown.
+    # Ship stock odm libui as libui_oplus.so (see proprietary-files rename) with its SONAME
+    # fixed + allocator-V1->V2 (only V2 exists on this build), and repoint the 5 odm consumers'
+    # DT_NEEDED. com.qti.node.dewarp (QTI camx) intentionally stays on platform libui.
+    'odm/lib64/libHIS.so': blob_fixup()
+        .clear_symbol_version('AHardwareBuffer_allocate')
+        .clear_symbol_version('AHardwareBuffer_describe')
+        .clear_symbol_version('AHardwareBuffer_lock')
+        .clear_symbol_version('AHardwareBuffer_release')
+        .clear_symbol_version('AHardwareBuffer_unlock')
+        .replace_needed('libui.so', 'libui_oplus.so'),
+    (
+        'odm/lib64/libsharebuffer_impl.so',
+        'odm/lib64/libEIS.so',
+        'odm/lib64/hw/camera.oemlayer.so',
+        'odm/lib64/camera/components/com.oplus.node.sstabphoto.so',
+    ): blob_fixup()
+        .replace_needed('libui.so', 'libui_oplus.so'),
+    'odm/lib64/libui_oplus.so': blob_fixup()
+        .fix_soname()
+        .replace_needed('android.hardware.graphics.allocator-V1-ndk.so', 'android.hardware.graphics.allocator-V2-ndk.so'),
     'odm/lib64/libarcsoft_high_dynamic_range_v4.so': blob_fixup()
         .clear_symbol_version('remote_handle_close')
         .clear_symbol_version('remote_handle_invoke')
