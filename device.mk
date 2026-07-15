@@ -103,7 +103,5 @@ $(call inherit-product, device/oneplus/sm8550-common/common.mk)
 # Inherit from the proprietary files makefile.
 $(call inherit-product, vendor/oneplus/salami/salami-vendor.mk)
 
-# OPlus camera (salami OOS16 app-layer: app / gallery / SDK / product libs / system_ext OPlus libs).
-# odm camera algo libs come from vendor/oneplus/salami (device tree). Scratch repo, isolated from
-# the sm8750 vendor/oplus/camera. Promote camera-salami -> camera once fully validated.
+#camera
 $(call inherit-product-if-exists, vendor/oplus/camera-salami/opluscamera.mk)
