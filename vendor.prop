@@ -7,3 +7,7 @@ ro.surface_flinger.set_touch_timer_ms=300
 
 # USB
 vendor.usb.product_string=OnePlus 11 5G
+
+# Camera
+ro.vendor.oplus.market.enname=OnePlus 11 5G
+ro.vendor.oplus.market.name=OnePlus 11 5G
