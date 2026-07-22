@@ -44,6 +44,8 @@ public class PwmTile extends TileService {
 
     @Override
     public void onClick() {
+        if (!mController.isPwmSupported()) return;
+
         boolean currentState = mController.isPwmEnabled();
 
         // Immediately update tile to new state for instant feedback
@@ -73,6 +75,14 @@ public class PwmTile extends TileService {
     private void updateTile() {
         Tile tile = getQsTile();
         if (tile == null) return;
+
+        if (!mController.isPwmSupported()) {
+            tile.setState(Tile.STATE_UNAVAILABLE);
+            tile.setLabel(getString(R.string.onepulse_pwm_mode_title));
+            tile.setIcon(Icon.createWithResource(this, R.drawable.ic_pwm));
+            tile.updateTile();
+            return;
+        }
 
         boolean pwmEnabled = mController.isPwmEnabled();
 

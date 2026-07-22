@@ -18,6 +18,7 @@ public class PwmController {
     private static PwmController sInstance;
     private final Context mContext;
     private final SharedPreferences mSharedPrefs;
+    private Boolean mPwmSupported;
 
     private PwmController(Context context) {
         mContext = context.getApplicationContext();
@@ -29,6 +30,21 @@ public class PwmController {
             sInstance = new PwmController(context);
         }
         return sInstance;
+    }
+
+    /**
+     * One-pulse support is panel-dependent: the kernel rejects reads with EFAULT
+     * when the panel dtsi lacks oplus,pwm-onepulse-support, so a successful read
+     * is the support signal. Panel support cannot change at runtime, so cache it.
+     */
+    public synchronized boolean isPwmSupported() {
+        if (mPwmSupported == null) {
+            mPwmSupported = FileUtils.readLineTrimmed(Constants.NODE_ONEPULSE_PWM) != null;
+            if (!mPwmSupported) {
+                Log.w(TAG, "One-pulse PWM is not supported on this panel");
+            }
+        }
+        return mPwmSupported;
     }
 
     public boolean isPwmEnabled() {
@@ -47,7 +63,7 @@ public class PwmController {
      */
     public void restorePwmSetting() {
         boolean wanted = mSharedPrefs.getBoolean(Constants.KEY_ONEPULSE_PWM, false);
-        if (wanted && !isPwmEnabled()) {
+        if (wanted && isPwmSupported() && !isPwmEnabled()) {
             if (FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM)) {
                 setPwm(true);
                 Log.i(TAG, "Restored PWM setting after boot");
@@ -58,8 +74,8 @@ public class PwmController {
     }
 
     public boolean enablePwm() {
-        if (!FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM)) {
-            Log.w(TAG, "PWM node is not writable");
+        if (!isPwmSupported() || !FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM)) {
+            Log.w(TAG, "PWM is unsupported or node is not writable");
             return false;
         }
 
@@ -75,8 +91,8 @@ public class PwmController {
     }
 
     public boolean disablePwm() {
-        if (!FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM)) {
-            Log.w(TAG, "PWM node is not writable");
+        if (!isPwmSupported() || !FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM)) {
+            Log.w(TAG, "PWM is unsupported or node is not writable");
             return false;
         }
 

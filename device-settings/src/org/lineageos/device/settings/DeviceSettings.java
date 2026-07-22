@@ -72,7 +72,9 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
         mDisplayModeController = DisplayModeController.getInstance(getContext());
 
         mOnePulsePWMSwitch = (SwitchPreferenceCompat) findPreference(Constants.KEY_ONEPULSE_PWM);
-        if (FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM)) {
+        if (!mPwmController.isPwmSupported()) {
+            mOnePulsePWMSwitch.setVisible(false);
+        } else if (FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM)) {
             mOnePulsePWMSwitch.setEnabled(true);
             mOnePulsePWMSwitch.setChecked(mPwmController.isPwmEnabled());
             mOnePulsePWMSwitch.setOnPreferenceChangeListener(this);
@@ -133,7 +135,8 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
         mHbmSwitch.setEnabled(!pwmEnabled && FileUtils.isFileWritable(Constants.NODE_HBM));
 
         // PWM can ALWAYS be toggled (it has priority and will auto-disable HBM)
-        mOnePulsePWMSwitch.setEnabled(FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM));
+        mOnePulsePWMSwitch.setEnabled(mPwmController.isPwmSupported()
+                && FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM));
     }
 
     private void initNotificationSliderPreference() {
@@ -499,8 +502,9 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
     }
 
     public static void restoreOnePulsePwmSetting(Context context) {
-        if (FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM)) {
-            PwmController pwmController = PwmController.getInstance(context);
+        PwmController pwmController = PwmController.getInstance(context);
+        if (pwmController.isPwmSupported()
+                && FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM)) {
             if (pwmController.isPwmEnabled()) {
                 pwmController.enablePwm();
             }

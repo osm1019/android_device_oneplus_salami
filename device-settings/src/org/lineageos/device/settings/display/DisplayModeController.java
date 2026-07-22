@@ -55,6 +55,10 @@ public class DisplayModeController {
         return mPwmController.isPwmEnabled();
     }
 
+    public boolean isPwmSupported() {
+        return mPwmController.isPwmSupported();
+    }
+
     /**
      * HBM can only be enabled if PWM is off (PWM has priority)
      */
