@@ -12,4 +12,136 @@
             <density>560</density>
         </density>
     </densityMapping>
+
+    <!-- Framework brightness float maps linearly onto the panel backlight level
+         (float = level / 4095; QC HWC scales by qcom,mdss-brightness-max-level).
+         The oplus driver (global-hbm-case-id 4) remaps levels through fixed DBV
+         buffers: levels 0-2047 are the normal range (backlight_buf, up to
+         ~502 nits full-white), 2048-2749 the 500-600 nit region, and above 2749
+         it latches the panel HBM commands and runs the 600-800 nit region
+         (backlight_600_800nit_buf), reaching ~803.6 nits at level 4095. Nits are
+         the full-white values from the stock OOS factory calibration table for
+         this panel (salami_imgs my_product/vendor/etc/
+         display_brightness_config_samsung1024.xml: kernel level L maps to stock
+         table row 4*L below 2048 and row L+6144 above - verified continuous at
+         every region seam). -->
+    <screenBrightnessMap>
+        <point>
+            <value>0.000244200</value> <!-- level 1 -->
+            <nits>1.976240</nits>
+        </point>
+        <point>
+            <value>0.000976801</value> <!-- level 4 (stock table min) -->
+            <nits>2.038000</nits>
+        </point>
+        <point>
+            <value>0.002442002</value> <!-- level 10 -->
+            <nits>2.163030</nits>
+        </point>
+        <point>
+            <value>0.012210012</value> <!-- level 50 -->
+            <nits>2.532460</nits>
+        </point>
+        <point>
+            <value>0.024420024</value> <!-- level 100 -->
+            <nits>2.737790</nits>
+        </point>
+        <point>
+            <value>0.048840049</value> <!-- level 200 -->
+            <nits>4.249500</nits>
+        </point>
+        <point>
+            <value>0.073260073</value> <!-- level 300 -->
+            <nits>7.527830</nits>
+        </point>
+        <point>
+            <value>0.097680098</value> <!-- level 400 -->
+            <nits>13.032000</nits>
+        </point>
+        <point>
+            <value>0.146520147</value> <!-- level 600 -->
+            <nits>31.668600</nits>
+        </point>
+        <point>
+            <value>0.195360195</value> <!-- level 800 -->
+            <nits>60.962000</nits>
+        </point>
+        <point>
+            <value>0.244200244</value> <!-- level 1000 -->
+            <nits>100.912000</nits>
+        </point>
+        <point>
+            <value>0.293040293</value> <!-- level 1200 -->
+            <nits>152.573000</nits>
+        </point>
+        <point>
+            <value>0.349938950</value> <!-- level 1433 (stock default) -->
+            <nits>230.742000</nits>
+        </point>
+        <point>
+            <value>0.415140415</value> <!-- level 1700 -->
+            <nits>338.402000</nits>
+        </point>
+        <point>
+            <value>0.488400488</value> <!-- level 2000 -->
+            <nits>478.354000</nits>
+        </point>
+        <point>
+            <value>0.499877900</value> <!-- level 2047 (normal range max) -->
+            <nits>502.519000</nits>
+        </point>
+        <point>
+            <value>0.561660562</value> <!-- level 2300 -->
+            <nits>538.472000</nits>
+        </point>
+        <point>
+            <value>0.610500611</value> <!-- level 2500 -->
+            <nits>568.108000</nits>
+        </point>
+        <point>
+            <value>0.671306471</value> <!-- level 2749 (panel HBM cmds latch above here) -->
+            <nits>603.201000</nits>
+        </point>
+        <point>
+            <value>0.732600733</value> <!-- level 3000 -->
+            <nits>640.679000</nits>
+        </point>
+        <point>
+            <value>0.805860806</value> <!-- level 3300 -->
+            <nits>699.439000</nits>
+        </point>
+        <point>
+            <value>0.879120879</value> <!-- level 3600 -->
+            <nits>754.740000</nits>
+        </point>
+        <point>
+            <value>0.952380952</value> <!-- level 3900 -->
+            <nits>803.177000</nits>
+        </point>
+        <point>
+            <value>1.000000000</value> <!-- level 4095 (kernel bl-max) -->
+            <nits>803.595000</nits>
+        </point>
+    </screenBrightnessMap>
+
+    <!-- Quick to brighten, lazy to darken, like stock OOS. These override the
+         config_autoBrightness*LightDebounce overlay values. -->
+    <autoBrightness enabled="True">
+        <brighteningLightDebounceMillis>1000</brighteningLightDebounceMillis>
+        <darkeningLightDebounceMillis>4000</darkeningLightDebounceMillis>
+    </autoBrightness>
+
+    <!-- No highBrightnessMode block: the whole float range is the panel's
+         backlight range, including the 600-800 nit HBM region the kernel maps
+         above level 2749 - the same region stock's hbm_lux_table drives for
+         auto sunlight boost (575 nits at 40k lux up to 800 at 70k). A time
+         budget here would dim the screen back down mid-sunlight; stock has
+         none. -->
+
+    <screenBrightnessRampFastDecrease>0.5</screenBrightnessRampFastDecrease>
+    <screenBrightnessRampFastIncrease>0.5</screenBrightnessRampFastIncrease>
+    <screenBrightnessRampSlowDecrease>0.04</screenBrightnessRampSlowDecrease>
+    <!-- Auto-brightness animates upward at the slow rate: 0.05 takes ~14s for a
+         dark-room to sunlight swing; 0.25 reaches it in ~3s, close to stock. -->
+    <screenBrightnessRampSlowIncrease>0.25</screenBrightnessRampSlowIncrease>
 </displayConfiguration>
