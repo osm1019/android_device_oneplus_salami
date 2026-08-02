@@ -93,9 +93,18 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.telephony.euicc.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/android.hardware.telephony.euicc.xml
 
-# Vibrator
+# Vibrator (YAAP-style haptic profiles via QTI FF + effect streams)
+# Profiles via persist.sys.haptic_profile:
+#   richtap | crisp | gentle | op13crisp | op13gentle (default)
+# Prefer FF (qcom-hv-haptics) over aw8697 LED so get_effect_stream() is used.
 PRODUCT_PACKAGES += \
-    android.hardware.vibrator.service.oplus-richtap
+    vendor.qti.hardware.vibrator.service.oplus
+
+$(call soong_config_set_bool,OPLUS_LINEAGE_VIBRATOR_HAL,USE_EFFECT_STREAM,true)
+$(call soong_config_set,OPLUS_LINEAGE_VIBRATOR_HAL,INCLUDE_DIR,$(LOCAL_PATH)/vibrator/effect)
+
+PRODUCT_PRODUCT_PROPERTIES += \
+    persist.sys.haptic_profile=op13gentle
 
 # Inherit from the common OEM chipset makefile.
 $(call inherit-product, device/oneplus/sm8550-common/common.mk)
