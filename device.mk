@@ -95,7 +95,8 @@ PRODUCT_COPY_FILES += \
 
 # Vibrator (YAAP-style haptic profiles via QTI FF + effect streams)
 # Profiles via persist.sys.haptic_profile:
-#   richtap | crisp | gentle | op13crisp | op13gentle (default)
+#   richtap | crisp | gentle | salamicrisp | salamigentle (default)
+# Stock tables from OOS libqtivibratoreffect.so (sla0815 + soft).
 # Prefer FF (qcom-hv-haptics) over aw8697 LED so get_effect_stream() is used.
 PRODUCT_PACKAGES += \
     vendor.qti.hardware.vibrator.service.oplus
@@ -104,7 +105,7 @@ $(call soong_config_set_bool,OPLUS_LINEAGE_VIBRATOR_HAL,USE_EFFECT_STREAM,true)
 $(call soong_config_set,OPLUS_LINEAGE_VIBRATOR_HAL,INCLUDE_DIR,$(LOCAL_PATH)/vibrator/effect)
 
 PRODUCT_PRODUCT_PROPERTIES += \
-    persist.sys.haptic_profile=op13gentle
+    persist.sys.haptic_profile=salamigentle
 
 # Inherit from the common OEM chipset makefile.
 $(call inherit-product, device/oneplus/sm8550-common/common.mk)

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+
+     salami-only haptic profile picker (keeps dodge/Settings OP13 list untouched).
+     Strings must be defined here — RRO cannot @string-reference the target package.
+-->
+<resources>
+    <string name="haptic_profile_richtap">Richtap</string>
+    <string name="haptic_profile_crisp">Crisp</string>
+    <string name="haptic_profile_gentle">Gentle</string>
+    <string name="haptic_profile_salamicrisp">OP11 Crisp</string>
+    <string name="haptic_profile_salamigentle">OP11 Gentle</string>
+
+    <string-array name="haptic_profile_entries">
+        <item>@string/haptic_profile_richtap</item>
+        <item>@string/haptic_profile_crisp</item>
+        <item>@string/haptic_profile_gentle</item>
+        <item>@string/haptic_profile_salamicrisp</item>
+        <item>@string/haptic_profile_salamigentle</item>
+    </string-array>
+
+    <string-array name="haptic_profile_values" translatable="false">
+        <item>richtap</item>
+        <item>crisp</item>
+        <item>gentle</item>
+        <item>salamicrisp</item>
+        <item>salamigentle</item>
+    </string-array>
+</resources>
