@@ -50,6 +50,28 @@
             android:dialogTitle="@string/notification_slider_selection_dialog_title"
             android:title="@string/notification_slider_bottom_position"
             android:summary="%s" />
+
+        <!-- App pickers, only visible when slider usage is "Launch app" -->
+        <Preference
+            android:key="slider_app_top_position"
+            android:icon="@drawable/ic_up_icon"
+            android:title="@string/notification_slider_top_position"
+            android:summary="@string/notification_slider_app_none"
+            android:persistent="false" />
+
+        <Preference
+            android:key="slider_app_middle_position"
+            android:icon="@drawable/ic_middle_icon"
+            android:title="@string/notification_slider_middle_position"
+            android:summary="@string/notification_slider_app_none"
+            android:persistent="false" />
+
+        <Preference
+            android:key="slider_app_bottom_position"
+            android:icon="@drawable/ic_down_icon"
+            android:title="@string/notification_slider_bottom_position"
+            android:summary="@string/notification_slider_app_none"
+            android:persistent="false" />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -68,11 +90,25 @@
             android:title="@string/hbm_title"
             android:summary="@string/hbm_summary" />
 
+        <SwitchPreferenceCompat
+            android:icon="@drawable/ic_hbm"
+            android:key="sunlight_boost"
+            android:defaultValue="true"
+            android:title="@string/sunlight_boost_title"
+            android:summary="@string/sunlight_boost_summary" />
+
+        <SwitchPreferenceCompat
+            android:key="aod_high_brightness"
+            android:icon="@drawable/ic_aod_brightness"
+            android:title="@string/aod_high_brightness_title"
+            android:summary="@string/aod_high_brightness_summary"
+            android:defaultValue="false" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="gaming"
-        android:title="@string/gaming_category_title">
+        android:key="battery_category"
+        android:title="@string/battery_category_title">
 
         <Preference
             android:key="bypass_charging"
@@ -80,6 +116,56 @@
             android:title="@string/bypass_charging_title"
             android:summary="@string/bypass_charging_summary"
             android:fragment="org.lineageos.device.settings.bypasschrg.BypassChargingFragment" />
+
+        <SwitchPreferenceCompat
+            android:icon="@drawable/ic_fast_charging"
+            android:key="fast_charging"
+            android:defaultValue="true"
+            android:disableDependentsState="true"
+            android:title="@string/fast_charging_title"
+            android:summary="@string/fast_charging_summary" />
+
+        <SwitchPreferenceCompat
+            android:icon="@drawable/ic_night_charging"
+            android:key="night_charging"
+            android:defaultValue="false"
+            android:dependency="fast_charging"
+            android:title="@string/night_charging_title"
+            android:summary="@string/night_charging_summary" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="video_category"
+        android:title="@string/video_category_title">
+
+        <SwitchPreferenceCompat
+            android:key="memc_video_enable"
+            android:icon="@drawable/ic_video"
+            android:defaultValue="true"
+            android:title="@string/memc_video_title"
+            android:summary="@string/memc_video_summary" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="gaming"
+        android:title="@string/gaming_category_title">
+
+        <SwitchPreferenceCompat
+            android:key="memc_game_enable"
+            android:icon="@drawable/ic_memc"
+            android:title="@string/memc_game_title"
+            android:summary="@string/memc_game_summary" />
+
+        <Preference
+            android:key="memc_game_apps"
+            android:icon="@drawable/ic_apps"
+            android:title="@string/memc_game_apps_title"
+            android:summary="@string/memc_game_apps_summary">
+            <intent
+                android:targetPackage="org.lineageos.device.settings"
+                android:targetClass="org.lineageos.device.settings.memc.MemcGameActivity" />
+        </Preference>
 
         <Preference
             android:key="refresh_rate"

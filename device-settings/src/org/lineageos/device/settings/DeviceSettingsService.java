@@ -25,11 +25,16 @@ import androidx.preference.PreferenceManager;
 
 import org.lineageos.device.settings.bypasschrg.BypassChargingController;
 import org.lineageos.device.settings.bypasschrg.BypassChargingManager;
+import org.lineageos.device.settings.display.AodBrightnessController;
 import org.lineageos.device.settings.display.DisplayModeController;
 import org.lineageos.device.settings.display.HbmController;
 import org.lineageos.device.settings.display.PwmController;
+import org.lineageos.device.settings.display.SunlightBoostController;
+import org.lineageos.device.settings.fastcharge.FastChargeController;
 import org.lineageos.device.settings.gamebar.GameBar;
 import org.lineageos.device.settings.gamebar.GameBarMonitorService;
+import org.lineageos.device.settings.memc.MemcGameService;
+import org.lineageos.device.settings.memc.VideoMemcService;
 import org.lineageos.device.settings.refreshrate.RefreshRateController;
 import org.lineageos.device.settings.refreshrate.RefreshRateMonitorService;
 import org.lineageos.device.settings.utils.FileUtils;
@@ -74,10 +79,34 @@ public class DeviceSettingsService extends Service {
 
     private void initializeSubsystems() {
         initializeBypassCharging();
+        initializeFastCharging();
         initializePwm();
         initializeTestTe();
+        initializeSunlightBoost();
+        initializeAodBrightness();
         initializeGameBar();
         initializeRefreshRate();
+        initializeMemcGame();
+    }
+
+    private void initializeAodBrightness() {
+        if (Constants.DEBUG) Log.i(TAG, "Initializing AOD brightness");
+        try {
+            AodBrightnessController.getInstance(this).restoreAodBrightness();
+            if (Constants.DEBUG) Log.i(TAG, "AOD brightness initialized");
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to initialize AOD brightness", e);
+        }
+    }
+
+    private void initializeSunlightBoost() {
+        if (Constants.DEBUG) Log.i(TAG, "Initializing SunlightBoost");
+        try {
+            SunlightBoostController.getInstance(this).init();
+            if (Constants.DEBUG) Log.i(TAG, "SunlightBoost initialized");
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to initialize SunlightBoost", e);
+        }
     }
 
     private void initializeBypassCharging() {
@@ -91,6 +120,18 @@ public class DeviceSettingsService extends Service {
             if (Constants.DEBUG) Log.i(TAG, "BypassCharging initialized");
         } catch (Exception e) {
             Log.e(TAG, "Failed to initialize BypassCharging", e);
+        }
+    }
+
+    private void initializeFastCharging() {
+        if (Constants.DEBUG) Log.i(TAG, "Initializing FastCharging");
+        try {
+            // USER_VOTER does not survive a reboot, so the persisted cap has to be
+            // written again here
+            FastChargeController.getInstance(this).restore();
+            if (Constants.DEBUG) Log.i(TAG, "FastCharging initialized");
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to initialize FastCharging", e);
         }
     }
 
@@ -150,9 +191,20 @@ public class DeviceSettingsService extends Service {
         try {
             RefreshRateController.getInstance(this);
             RefreshRateMonitorService.notifyStateChanged(this);
+            VideoMemcService.applyMasterEnable(this);
             if (Constants.DEBUG) Log.i(TAG, "RefreshRate initialized");
         } catch (Exception e) {
             Log.e(TAG, "Failed to initialize RefreshRate", e);
+        }
+    }
+
+    private void initializeMemcGame() {
+        if (Constants.DEBUG) Log.i(TAG, "Initializing MemcGame");
+        try {
+            MemcGameService.notifyStateChanged(this);
+            if (Constants.DEBUG) Log.i(TAG, "MemcGame initialized");
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to initialize MemcGame", e);
         }
     }
 
@@ -215,17 +267,16 @@ public class DeviceSettingsService extends Service {
     private void handleScreenOff() {
         if (Constants.DEBUG) Log.i(TAG, "Screen OFF");
 
-        // Disable HBM (business rule #2)
+        // Re-assert before LP1 so lux_aod cannot win the race.
         try {
-            HbmController hbmController = HbmController.getInstance(this);
-            if (hbmController.isHbmEnabled()) {
-                hbmController.disableHbm();
-                DisplayModeController.getInstance(this).broadcastStateChange();
-                if (Constants.DEBUG) Log.i(TAG, "HBM disabled on screen off");
-            }
+            AodBrightnessController.getInstance(this).restoreAodBrightness();
         } catch (Exception e) {
-            Log.e(TAG, "Failed to disable HBM on screen off", e);
+            Log.e(TAG, "Failed to restore AOD brightness on screen off", e);
         }
+
+        // HBM (hbm_max) off on sleep is enforced by the kernel now
+        // (oplus_display_set_power resets hbm_max on DPMS OFF/LP so the UI can't
+        // freeze with HBM latched). We only sync our displayed state on screen-on.
 
         // Stop GameBar
         try {
@@ -240,6 +291,26 @@ public class DeviceSettingsService extends Service {
 
     private void handleScreenOn() {
         if (Constants.DEBUG) Log.i(TAG, "Screen ON");
+
+        // Sync HBM state: the kernel forced hbm_max off while the panel slept, so
+        // reconcile our preference to the node and refresh the tile/switch, which
+        // would otherwise show a stale ON.
+        try {
+            HbmController.getInstance(this).syncState();
+            DisplayModeController.getInstance(this).broadcastStateChange();
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to sync HBM state on screen on", e);
+        }
+
+        // The kernel ADFR status_reset() re-arms sa_min_fps=1 on every panel
+        // enable/timing switch, which would silently re-enable LTPO after a
+        // screen-off/on. Re-apply the persisted refresh-rate state (including
+        // the LTPO master switch) so the user's choice survives.
+        try {
+            RefreshRateMonitorService.notifyStateChanged(this);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to re-apply refresh rate on screen on", e);
+        }
 
         // Restart GameBar if needed
         try {
@@ -268,6 +339,12 @@ public class DeviceSettingsService extends Service {
         } catch (Exception e) {
             Log.e(TAG, "Failed to handle power connected", e);
         }
+
+        try {
+            FastChargeController.getInstance(this).restore();
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to restore fast charging on connect", e);
+        }
     }
 
     private void handlePowerDisconnected() {
@@ -280,6 +357,14 @@ public class DeviceSettingsService extends Service {
             BypassChargingController.getInstance(this).handlePowerDisconnected();
         } catch (Exception e) {
             Log.e(TAG, "Failed to handle power disconnected", e);
+        }
+
+        // USER_VOTER survives unplug, so clear the session boost and re-apply the
+        // persisted cap now for the next plug
+        try {
+            FastChargeController.getInstance(this).restore();
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to restore fast charging on disconnect", e);
         }
     }
 }

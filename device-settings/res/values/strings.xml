@@ -16,7 +16,7 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="device_title">OnePlus Settings</string>
-    <string name="device_summary">Extra settings for OnePlus 11 5G</string>
+    <string name="device_summary">Extra settings for OnePlus 13</string>
 
     <!-- Notification slider -->
     <string name="notification_slider_category_title">Alert slider</string>
@@ -36,6 +36,11 @@
     <string name="notification_slider_for_rotation">Rotation</string>
     <string name="notification_slider_for_ringer">Ringer</string>
     <string name="notification_slider_for_notification_ringer">Notification and ringer</string>
+    <string name="notification_slider_for_applaunch">Launch app</string>
+    <string name="notification_slider_applaunch_launch">Launch app</string>
+    <string name="notification_slider_app_none">No app selected</string>
+    <string name="notification_slider_app_dialog_title">Select app</string>
+    <string name="notification_slider_app_clear">Clear</string>
     <string name="notification_slider_flashlight_off">Off</string>
     <string name="notification_slider_flashlight_on">On</string>
     <string name="notification_slider_flashlight_blink">Blink</string>
@@ -53,6 +58,26 @@
     <!-- Gaming category -->
     <string name="gaming_category_title">Gaming</string>
     <string name="gaming_category_summary">Extra settings for gamers</string>
+
+    <!-- Video / MEMC (Iris 7, gated on chip_version sysfs) -->
+    <string name="video_category_title">Video</string>
+    <string name="memc_video_title">Video enhancement</string>
+    <string name="memc_video_summary">Smooth motion by boosting fullscreen video to 120 fps</string>
+    <string name="memc_game_title">MEMC</string>
+    <string name="memc_game_summary">Boost supported games to 120 fps (requires 60 fps in-game setting)</string>
+    <string name="memc_game_apps_title">MEMC games</string>
+    <string name="memc_game_apps_summary">Choose which supported games use frame interpolation</string>
+    <string name="memc_game_apps_category">Supported games</string>
+    <string name="memc_game_apps_empty">No supported games installed</string>
+    <string name="memc_game_apps_empty_summary">Install a profiled game (e.g. PUBG) to manage it here</string>
+
+    <!-- Battery category -->
+    <string name="battery_category_title">Battery</string>
+    <string name="fast_charging_title">Fast charging</string>
+    <string name="fast_charging_summary">Allow SuperVOOC up to 100W</string>
+    <string name="fast_charging_unavailable">Fast charging control is not supported on this device</string>
+    <string name="night_charging_title">Night mode</string>
+    <string name="night_charging_summary">Limit charging current to 1.5A</string>
 
     <!-- Bypass chargings -->
     <string name="bypass_charging_category_title" translatable="false">@string/bypass_charging_title</string>
@@ -234,11 +259,17 @@
     <string name="hbm_category_title" translatable="false">@string/hbm_title</string>
     <string name="hbm_title">HBM</string>
     <string name="hbm_summary">High Brightness Mode</string>
+    <string name="sunlight_boost_title">Auto sunlight boost</string>
+    <string name="sunlight_boost_summary">Boost to peak panel brightness in direct sunlight (above 40,000 lux), like stock. Releases below 20,000 lux</string>
     <string name="hbm_unavailable">High Brightness Mode is not supported on this device</string>
     <string name="hbm_warning_title">Warning</string>
     <string name="hbm_warning_summary">HBM accelerates cumulative panel degradation. So use it only when necessary and for short periods of time.\n</string>
     <string name="hbm_btn_enable">Enable</string>
     <string name="hbm_warning_dont_show_again">Don\'t show this warning again</string>
+
+    <!-- AOD brightness (stock: 10 nits default, 50 nits optional high) -->
+    <string name="aod_high_brightness_title">High brightness AOD</string>
+    <string name="aod_high_brightness_summary">Use 50 nits for Always On Display instead of the default 10 nits</string>
 
     <!-- Refresh Rate Settings -->
     <string name="refresh_rate_title">Refresh rate</string>
@@ -250,6 +281,12 @@
     <string name="refresh_rate_overrides_title">Per-App Overrides</string>
     <string name="refresh_rate_app_title_dialog">Select Refresh Rate</string>
     <string name="no_app_overrides">No app-specific overrides configured</string>
+    <string name="ltpo_title">LTPO (adaptive refresh rate)</string>
+    <string name="ltpo_summary">Allow the panel to self-refresh at low rates (down to 1 Hz) when the screen is idle, saving power</string>
+    <string name="ltpo_tile_label">LTPO</string>
+    <string name="ltpo_tile_description">Toggle adaptive (LTPO) refresh rate</string>
+    <string name="ltpo_adaptive">Adaptive</string>
+    <string name="ltpo_fixed">Fixed</string>
     <string name="refresh_rate_auto">Auto</string>
     <string name="refresh_rate_60hz" translatable="false"> 60 Hz</string>
     <string name="refresh_rate_90hz" translatable="false"> 90 Hz</string>
@@ -257,7 +294,7 @@
 
     <!-- HBM/PWM/RefreshRate tile messages -->
     <string name="hbm_unavailable_pwm_active">PWM is active</string>
-    <string name="refresh_rate_locked_hbm">Locked at 90Hz (HBM)</string>
+    <string name="refresh_rate_locked_hbm">Locked at 120Hz (HBM)</string>
 
     <!-- Generic -->
     <string name="delete">Delete</string>

@@ -1,9 +1,16 @@
 on boot
+    # Charger nodes (cool_down) are commonized in sm8550-common ueventd.oplus.rc:
+    # the driver registers them after this trigger, so ueventd is the only thing
+    # that can set their DAC. The display nodes below already exist here.
     # Display
     chown system system /sys/kernel/oplus_display/pwm_onepulse
     chmod 0666 /sys/kernel/oplus_display/pwm_onepulse
     chown system system /sys/kernel/oplus_display/hbm_max
     chmod 0664 /sys/kernel/oplus_display/hbm_max
+    # AOD light mode (0=50 nits high, 1=10 nits low). Also set in
+    # init.oplus.display.rc; keep here so DeviceSettings can always write it.
+    chown system system /sys/kernel/oplus_display/aod_light_mode_set
+    chmod 0666 /sys/kernel/oplus_display/aod_light_mode_set
     # Panel test-TE counter (real DDIC refresh rate); DeviceSettingsService
     # writes 1 at boot to enable the irq, GameBar FPS meter reads the rate
     chown system system /sys/kernel/oplus_display/test_te

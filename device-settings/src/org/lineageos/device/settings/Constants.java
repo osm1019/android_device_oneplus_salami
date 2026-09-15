@@ -44,8 +44,14 @@ public class Constants {
     public static final String KEY_NOTIF_SLIDER_ACTION_MIDDLE = "action_middle_position";
     public static final String KEY_NOTIF_SLIDER_ACTION_BOTTOM = "action_bottom_position";
 
+    /* Per-position apps for the app-launch slider usage */
+    public static final String KEY_NOTIF_SLIDER_APP_TOP = "slider_app_top_position";
+    public static final String KEY_NOTIF_SLIDER_APP_MIDDLE = "slider_app_middle_position";
+    public static final String KEY_NOTIF_SLIDER_APP_BOTTOM = "slider_app_bottom_position";
+
     public static final String EXTRA_SLIDER_USAGE = "usage";
     public static final String EXTRA_SLIDER_ACTIONS = "actions";
+    public static final String EXTRA_SLIDER_APPS = "slider_apps";
 
     public static final String NOTIF_SLIDER_FOR_NOTIFICATION = "1";
     public static final String NOTIF_SLIDER_FOR_FLASHLIGHT = "2";
@@ -53,6 +59,7 @@ public class Constants {
     public static final String NOTIF_SLIDER_FOR_ROTATION = "4";
     public static final String NOTIF_SLIDER_FOR_RINGER = "5";
     public static final String NOTIF_SLIDER_FOR_NOTIFICATION_RINGER = "6";
+    public static final String NOTIF_SLIDER_FOR_APPLAUNCH = "7";
 
     public static final String ACTION_UPDATE_SLIDER_POSITION
             = "org.lineageos.device.settings.UPDATE_SLIDER_POSITION";
@@ -60,6 +67,7 @@ public class Constants {
             = "org.lineageos.device.settings.UPDATE_SLIDER_SETTINGS";
     public static final String EXTRA_SLIDER_POSITION = "position";
     public static final String EXTRA_SLIDER_POSITION_VALUE = "position_value";
+    public static final String EXTRA_SLIDER_PACKAGE = "package";
 
     public static final int MODE_TOTAL_SILENCE = 600;
     public static final int MODE_ALARMS_ONLY = 601;
@@ -78,6 +86,8 @@ public class Constants {
     public static final int MODE_ROTATION_0 = 641;
     public static final int MODE_ROTATION_90 = 642;
     public static final int MODE_ROTATION_270 = 643;
+    // Must match MODE_APP_LAUNCH in SystemUI TriStateUiControllerImpl
+    public static final int MODE_APP_LAUNCH = 650;
 
     // Holds <preference_key> -> <proc_node> mapping
     public static final Map<String, String> sBooleanNodePreferenceMap = new HashMap<>();
@@ -104,9 +114,44 @@ public class Constants {
     public static final int BYPASS_TARGET_MAX = 99;
     public static final int BYPASS_TARGET_DEFAULT = BYPASS_TARGET_MIN;
 
+    /* Fast charging current cap */
+    public static final String NODE_FAST_CHARGING = "/sys/class/oplus_chg/battery/cool_down";
+    public static final String KEY_FAST_CHARGING = "fast_charging";
+    public static final String KEY_NIGHT_CHARGING = "night_charging";
+
+    /** cool_down steps on svooc_2_0_curr_table (Ibus mA), DT vooc_curr_table_type=2.
+     *  0 unvotes USER_VOTER entirely: the 9.5 A / 100 W brick class. */
+    public static final String COOL_DOWN_UNLIMITED = "0";
+    public static final String COOL_DOWN_NIGHT = "1";      // 1500 mA
+    public static final String COOL_DOWN_STANDARD = "5";   // 3000 mA
+
+    /** Mirrored to Settings.System for the SystemUI charging HUD, which must not
+     *  read oplus_chg itself (platform_app is denied search on that dir). */
+    public static final String SETTINGS_CHARGE_HUD_MODE = "device_settings_charge_hud_mode";
+    public static final String SETTINGS_CHARGE_BOOST_AVAILABLE =
+            "device_settings_charge_boost_available";
+
+    public static final int HUD_MODE_UNLIMITED = 0;
+    public static final int HUD_MODE_STANDARD = 1;
+    public static final int HUD_MODE_NIGHT = 2;
+
+    /** Sent by SystemUI on long-press inside the charging ring. */
+    public static final String ACTION_BOOST_CHARGING =
+            "org.lineageos.device.settings.action.BOOST_CHARGING";
+
     /* HBM */
     public static final String NODE_HBM = "/sys/kernel/oplus_display/hbm_max";
     public static final String KEY_HBM = "hbm_max";
+
+    /** Automatic sunlight boost: drives hbm_max from the light sensor with the
+     *  stock hbm_lux_table thresholds (enter 40000 lux, exit 20000 lux). */
+    public static final String KEY_SUNLIGHT_BOOST = "sunlight_boost";
+
+    /** AOD brightness, stock binary levels via OFP: write 0 = high (~50 nits),
+     *  1 = low (~10 nits). Default is low, matching ColorOS. */
+    public static final String NODE_AOD_LIGHT_MODE =
+            "/sys/kernel/oplus_display/aod_light_mode_set";
+    public static final String KEY_AOD_HIGH_BRIGHTNESS = "aod_high_brightness";
 
     /** Panel test-TE counter: real DDIC self-refresh rate (LTPO). Write "1" to
      *  enable the irq (done at boot by DeviceSettingsService); reads return the
@@ -117,7 +162,8 @@ public class Constants {
 
     /** CRTC frame-done counter = SurfaceFlinger composition rate (NOT the panel
      *  self-refresh rate). This is what the crDroid FPS Info tile shows
-     *  (config_fpsInfoSysNode); GameBar reads the same node for a matching number. */
+     *  (config_fpsInfoSysNode); GameBar reads the same node for a matching number.
+     *  sm8550 names the CRTC sysfs device "sde-crtc-0". */
     public static final String NODE_MEASURED_FPS = "/sys/class/drm/sde-crtc-0/measured_fps";
 
     /** ADFR/LTPO min fps request: 0 = auto (panel self-refresh drops to the
@@ -126,6 +172,32 @@ public class Constants {
      *  rate pins the DDIC at the mode rate). Applied by the kernel
      *  immediately and re-applied on every panel enable/timing switch. */
     public static final String NODE_ADFR_MIN_FPS = "/sys/kernel/oplus_display/adfr_min_fps";
+
+    /* Game MEMC (Iris 7, salami / same SM8550 path as astonc).
+     * Master + per-game state live in DeviceSettings SharedPreferences only.
+     * Framework Settings.System is used only for the MIN/PEAK pin while a
+     * session is active. Hidden in UI unless /sys/kernel/iris/chip_version exists. */
+    public static final String KEY_MEMC_GAME = "memc_game_enable";
+    public static final String KEY_MEMC_VIDEO = "memc_video_enable";
+    public static final String PROP_AUTO_MEMC = "persist.sys.display.iris.auto_memc";
+    public static final String KEY_MEMC_GAME_APPS = "memc_game_apps";
+    public static final String KEY_MEMC_GAME_DISABLED = "memc_game_disabled_apps";
+    public static final String PROP_MEMC_REQUEST = "sys.display.iris.memc_request";
+    public static final int MEMC_PIN_REFRESH_RATE = 120;
+    /** Pixelworks Iris present when this sysfs node exists (panel-variant gated). */
+    public static final String NODE_IRIS_CHIP = "/sys/kernel/iris/chip_version";
+
+    /** LTPO (adaptive refresh) master switch: on = panel self-refresh floor is
+     *  dynamic (min_fps 0 -> kernel maps to 1: 20Hz active floor, 1Hz idle),
+     *  off = panel pinned to the mode rate (no idle drop). The kernel re-arms
+     *  sa_min_fps=1 on every screen-on/timing switch, so DeviceSettingsService
+     *  re-applies this state on ACTION_SCREEN_ON. */
+    public static final String KEY_LTPO_ENABLED = "ltpo_enabled";
+
+    /** Broadcast sent whenever the LTPO master switch changes, so the QS tile
+     *  (LtpoTile) and any other UI stays in sync. Package-scoped, same app. */
+    public static final String ACTION_LTPO_STATE_CHANGED =
+            "org.lineageos.device.settings.action.LTPO_STATE_CHANGED";
 
     /** Refresh rate */
     public static final String KEY_REFRESH_RATE_MODE = "refresh_rate_mode";

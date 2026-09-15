@@ -20,6 +20,7 @@ import android.util.Log;
 
 import org.lineageos.device.settings.Constants;
 import org.lineageos.device.settings.display.HbmController;
+import org.lineageos.device.settings.memc.MemcGameService;
 import org.lineageos.device.settings.utils.FileUtils;
 import org.lineageos.device.settings.utils.ForegroundAppDetector;
 
@@ -36,7 +37,7 @@ public class RefreshRateMonitorService extends Service {
 
     // "auto" = full dynamic range: let SurfaceFlinger range across 60/90/120 by
     // content while the kernel ADFR self-refresh drops the DDIC to 20/1 beneath.
-    // Panel max is 120 on aston. Defining auto explicitly (instead of restoring the
+    // Panel max is 120 on salami. Defining auto explicitly (instead of restoring the
     // user's Android "Smooth display" baseline, which is often 60) is what keeps
     // auto from welding the ceiling to 60Hz.
     private static final float AUTO_MIN_REFRESH_RATE = 60f;
@@ -84,7 +85,7 @@ public class RefreshRateMonitorService extends Service {
             // Start service
             Intent serviceIntent = new Intent(context, RefreshRateMonitorService.class);
             try {
-                context.startService(serviceIntent);
+                context.startServiceAsUser(serviceIntent, UserHandle.SYSTEM);
                 if (Constants.DEBUG) Log.i(TAG, "Service started");
             } catch (Exception e) {
                 Log.e(TAG, "Failed to start service", e);
@@ -176,9 +177,17 @@ public class RefreshRateMonitorService extends Service {
             return;
         }
 
-        // Fixed rates mean fixed all the way down: pin the panel self-refresh at
-        // the mode rate too; auto (0) re-enables dynamic LTPO (20Hz floor, 1Hz idle)
-        FileUtils.writeLine(Constants.NODE_ADFR_MIN_FPS, String.valueOf(fps));
+        if (MemcGameService.isPinActive()) {
+            if (Constants.DEBUG) Log.i(TAG, "MEMC pin active, skipping refresh rate change");
+            return;
+        }
+
+        // LTPO master switch: when enabled, write the mode rate (0 = dynamic
+        // ADFR on sm8550 adfr_min_fps). When disabled, pin the DDIC at the
+        // mode rate so it never idle-drops (auto pins to 120).
+        boolean ltpo = mRefreshRateController.isLtpoEnabled();
+        int minFps = ltpo ? fps : (fps == 0 ? 120 : fps);
+        FileUtils.writeLine(Constants.NODE_ADFR_MIN_FPS, String.valueOf(minFps));
 
         // fps == 0 (auto): open SF to the full 60..120 range so it can pick the mode
         // by content. fps > 0 (fixed): lock SF to that single mode (MIN == PEAK).
