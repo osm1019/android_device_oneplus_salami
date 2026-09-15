@@ -14,10 +14,16 @@ import org.lineageos.device.settings.Constants;
 import org.lineageos.device.settings.utils.FileUtils;
 
 /**
- * AOD brightness on dodge (AA569). Store 0 (high) / 1 (low) in
- * {@link Constants#NODE_AOD_LIGHT_MODE} so the kernel LP1 hook can latch
- * DBV before enter_idle. Do not poke write_panel_reg from here: DSI clocks
- * in idle flash the panel and then idle re-dims it.
+ * Stock-style AOD brightness on salami (SM8550 OFP).
+ * {@code /sys/kernel/oplus_display/aod_light_mode_set}:
+ * 0 = high (~50 nits), 1 = low (~10 nits).
+ *
+ * The sm8550 display driver already applies DSI_CMD_AOD_{HIGH,LOW}_LIGHT_MODE
+ * on doze entry and live while in AOD. Panel dtsi (AMB670 / AC052 / NT37705)
+ * already contains those command sets — do not port dodge's AA569 PeakLumin
+ * 0x81 LP1 rewrite; that panel ignored DCS 0x51 after enter_idle.
+ *
+ * Default matches ColorOS: low / 10 nits.
  */
 public class AodBrightnessController {
     private static final String TAG = "AodBrightnessController";
@@ -43,8 +49,7 @@ public class AodBrightnessController {
 
     public boolean setHighBrightness(boolean highBrightness) {
         if (!FileUtils.isFileWritable(Constants.NODE_AOD_LIGHT_MODE)) {
-            Log.w(TAG, "Node is not writable: " + Constants.NODE_AOD_LIGHT_MODE);
-            // Persist anyway so restoreAodBrightness() applies it once the node is ready
+            Log.w(TAG, "AOD light-mode node is not writable: " + Constants.NODE_AOD_LIGHT_MODE);
             mSharedPrefs.edit()
                     .putBoolean(Constants.KEY_AOD_HIGH_BRIGHTNESS, highBrightness)
                     .commit();
@@ -61,13 +66,13 @@ public class AodBrightnessController {
             return;
         }
         if (apply(high)) {
-            Log.i(TAG, "Restored AOD brightness: " + (high ? "high" : "low"));
+            Log.i(TAG, "Restored AOD brightness: "
+                    + (high ? "high (50 nits)" : "low (10 nits)"));
         }
     }
 
     private boolean apply(boolean highBrightness) {
-        // "force" tells OFP to ignore lux_aod overwrites from the sensors HAL.
-        final String nodeValue = highBrightness ? "0 force" : "1 force";
+        final String nodeValue = highBrightness ? "0" : "1";
         if (!FileUtils.writeLine(Constants.NODE_AOD_LIGHT_MODE, nodeValue)) {
             Log.e(TAG, "Failed to write AOD light mode " + nodeValue);
             return false;
@@ -76,7 +81,7 @@ public class AodBrightnessController {
                 .putBoolean(Constants.KEY_AOD_HIGH_BRIGHTNESS, highBrightness)
                 .commit();
         Log.i(TAG, "AOD light mode set to " + nodeValue
-                + " (" + (highBrightness ? "high" : "low") + ")");
+                + " (" + (highBrightness ? "50 nits" : "10 nits") + ")");
         return true;
     }
 }
