@@ -43,7 +43,8 @@ public class FastChargeController {
     }
 
     public boolean isSupported() {
-        return FileUtils.isFileWritable(Constants.NODE_FAST_CHARGING);
+        return FileUtils.fileExists(Constants.NODE_FAST_CHARGING)
+                && FileUtils.isFileWritable(Constants.NODE_FAST_CHARGING);
     }
 
     public boolean isFastChargingEnabled() {

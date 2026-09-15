@@ -1,7 +1,4 @@
 on boot
-    # Charger nodes (cool_down) are commonized in sm8550-common ueventd.oplus.rc:
-    # the driver registers them after this trigger, so ueventd is the only thing
-    # that can set their DAC. The display nodes below already exist here.
     # Display
     chown system system /sys/kernel/oplus_display/pwm_onepulse
     chmod 0666 /sys/kernel/oplus_display/pwm_onepulse
@@ -19,3 +16,17 @@ on boot
     # RefreshRateMonitorService alongside the MIN/PEAK refresh rate settings
     chown system system /sys/kernel/oplus_display/adfr_min_fps
     chmod 0664 /sys/kernel/oplus_display/adfr_min_fps
+    # cool_down is created with 0644; sm8550-common ueventd only DAC-fixes
+    # mmi_charging_enable. Charger probe is often after `on boot`.
+    chown system system /sys/class/oplus_chg/battery/cool_down
+    chmod 0660 /sys/class/oplus_chg/battery/cool_down
+
+on charger
+    chown system system /sys/class/oplus_chg/battery/cool_down
+    chmod 0660 /sys/class/oplus_chg/battery/cool_down
+
+on property:sys.boot_completed=1
+    chown system system /sys/kernel/oplus_display/pwm_onepulse
+    chmod 0666 /sys/kernel/oplus_display/pwm_onepulse
+    chown system system /sys/class/oplus_chg/battery/cool_down
+    chmod 0660 /sys/class/oplus_chg/battery/cool_down

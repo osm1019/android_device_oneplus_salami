@@ -106,7 +106,7 @@ fun MainScreen(
         mutableStateOf(prefs.getString(Constants.KEY_NOTIF_SLIDER_APP_BOTTOM, "") ?: "")
     }
 
-    val pwmWritable = pwmController.isPwmSupported && FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM)
+    val pwmWritable = FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM)
     val hbmWritable = FileUtils.isFileWritable(Constants.NODE_HBM)
     val aodPresent = FileUtils.isFileWritable(Constants.NODE_AOD_LIGHT_MODE) ||
         FileUtils.fileExists(Constants.NODE_AOD_LIGHT_MODE)
@@ -380,6 +380,9 @@ fun MainScreen(
                     onCheckedChange = { enable ->
                         fastCharge.setFastChargingEnabled(enable)
                         fastOn = enable
+                        if (enable) {
+                            nightOn = fastCharge.isNightModeEnabled
+                        }
                         Log.i(
                             TAG,
                             "Fast charging " + if (enable) "enabled (SuperVOOC 100W)" else "disabled",
@@ -392,9 +395,13 @@ fun MainScreen(
                     title = stringResource(R.string.night_charging_title),
                     summary = stringResource(R.string.night_charging_summary),
                     checked = nightOn,
-                    enabled = fastSupported && !fastOn,
+                    enabled = fastSupported,
                     customIcon = { PrefIcon(R.drawable.ic_night_charging) },
                     onCheckedChange = { enable ->
+                        if (enable && fastOn) {
+                            fastCharge.setFastChargingEnabled(false)
+                            fastOn = false
+                        }
                         fastCharge.setNightModeEnabled(enable)
                         nightOn = enable
                         Log.i(

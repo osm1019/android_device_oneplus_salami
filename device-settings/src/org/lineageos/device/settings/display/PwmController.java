@@ -18,7 +18,6 @@ public class PwmController {
     private static PwmController sInstance;
     private final Context mContext;
     private final SharedPreferences mSharedPrefs;
-    private Boolean mPwmSupported;
 
     private PwmController(Context context) {
         mContext = context.getApplicationContext();
@@ -33,18 +32,12 @@ public class PwmController {
     }
 
     /**
-     * One-pulse support is panel-dependent: the kernel rejects reads with EFAULT
-     * when the panel dtsi lacks oplus,pwm-onepulse-support, so a successful read
-     * is the support signal. Panel support cannot change at runtime, so cache it.
+     * UI availability. Dodge caches EFAULT-on-read as "unsupported panel"; that
+     * false-negatives on salami (probe before the panel is up, or kernels that
+     * still accept the write). Gate on DAC like the previous salami app.
      */
-    public synchronized boolean isPwmSupported() {
-        if (mPwmSupported == null) {
-            mPwmSupported = FileUtils.readLineTrimmed(Constants.NODE_ONEPULSE_PWM) != null;
-            if (!mPwmSupported) {
-                Log.w(TAG, "One-pulse PWM is not supported on this panel");
-            }
-        }
-        return mPwmSupported;
+    public boolean isPwmSupported() {
+        return FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM);
     }
 
     public boolean isPwmEnabled() {
@@ -63,22 +56,19 @@ public class PwmController {
      */
     public void restorePwmSetting() {
         boolean wanted = mSharedPrefs.getBoolean(Constants.KEY_ONEPULSE_PWM, false);
-        if (wanted && isPwmSupported() && !isPwmEnabled()) {
-            if (FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM)) {
-                if (setPwm(true)) {
-                    Log.i(TAG, "Restored PWM setting after boot");
-                } else {
-                    Log.w(TAG, "Failed to restore PWM setting after boot");
-                }
+        if (wanted && FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM)
+                && !isPwmEnabled()) {
+            if (setPwm(true)) {
+                Log.i(TAG, "Restored PWM setting after boot");
             } else {
-                Log.w(TAG, "PWM node is not writable, cannot restore setting");
+                Log.w(TAG, "Failed to restore PWM setting after boot");
             }
         }
     }
 
     public boolean enablePwm() {
-        if (!isPwmSupported() || !FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM)) {
-            Log.w(TAG, "PWM is unsupported or node is not writable");
+        if (!FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM)) {
+            Log.w(TAG, "PWM node is not writable");
             return false;
         }
 
@@ -102,8 +92,8 @@ public class PwmController {
     }
 
     public boolean disablePwm() {
-        if (!isPwmSupported() || !FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM)) {
-            Log.w(TAG, "PWM is unsupported or node is not writable");
+        if (!FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM)) {
+            Log.w(TAG, "PWM node is not writable");
             return false;
         }
 
