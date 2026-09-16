@@ -96,8 +96,11 @@ public class Constants {
     /* GameBar */
     public static final String KEY_GAMEBAR_AUTO_APPS = "game_bar_auto_apps";
 
-    /* OnePulse PWM */
+    /* PWM / flicker reduction.
+     * Ace 3-style one-pulse: pwm_onepulse (EFAULT on OP11 Samsung).
+     * OP11 ColorOS high-frequency PWM dimming: dimlayer_bl_en (DC dimming). */
     public static final String NODE_ONEPULSE_PWM = "/sys/kernel/oplus_display/pwm_onepulse";
+    public static final String NODE_DIMLAYER_BL = "/sys/kernel/oplus_display/dimlayer_bl_en";
     public static final String KEY_ONEPULSE_PWM = "onepulse_pwm";
 
     /* Bypass Charging */

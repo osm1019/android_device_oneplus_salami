@@ -251,9 +251,9 @@
     <!-- Display -->
     <string name="display_category_title">Display</string>
 
-    <!-- One-Pulse PWM (Classic) mode -->
-    <string name="onepulse_pwm_mode_title">One-Pulse PWM</string>
-    <string name="onepulse_pwm_mode_summary">Enable One-Pulse (high frequency) PWM to reduce display flicker at mid or high brightness levels</string>
+    <!-- OP11: ColorOS high-frequency PWM dimming (DC / dimlayer). Ace 3 one-pulse if the node works. -->
+    <string name="onepulse_pwm_mode_title">High-frequency PWM dimming</string>
+    <string name="onepulse_pwm_mode_summary">Reduce flicker at low brightness, like ColorOS. Uses more battery.</string>
 
     <!-- HBM -->
     <string name="hbm_category_title" translatable="false">@string/hbm_title</string>

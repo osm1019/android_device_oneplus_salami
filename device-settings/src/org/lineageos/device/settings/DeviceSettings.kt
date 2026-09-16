@@ -21,7 +21,6 @@ import android.content.Intent
 import android.os.UserHandle
 import android.util.Log
 import org.lineageos.device.settings.display.PwmController
-import org.lineageos.device.settings.utils.FileUtils
 
 /** Non-UI slider restore / broadcast. Boot and KeyHandler still call these. */
 object DeviceSettings {
@@ -75,12 +74,7 @@ object DeviceSettings {
 
     @JvmStatic
     fun restoreOnePulsePwmSetting(context: Context) {
-        if (FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM)) {
-            val pwmController = PwmController.getInstance(context)
-            if (pwmController.isPwmEnabled) {
-                pwmController.enablePwm()
-            }
-        }
+        PwmController.getInstance(context).restorePwmSetting()
     }
 
     @JvmStatic

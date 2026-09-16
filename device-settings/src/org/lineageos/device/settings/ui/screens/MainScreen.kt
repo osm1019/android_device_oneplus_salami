@@ -106,7 +106,7 @@ fun MainScreen(
         mutableStateOf(prefs.getString(Constants.KEY_NOTIF_SLIDER_APP_BOTTOM, "") ?: "")
     }
 
-    val pwmWritable = FileUtils.isFileWritable(Constants.NODE_ONEPULSE_PWM)
+    val pwmWritable = pwmController.isPwmSupported
     val hbmWritable = FileUtils.isFileWritable(Constants.NODE_HBM)
     val aodPresent = FileUtils.isFileWritable(Constants.NODE_AOD_LIGHT_MODE) ||
         FileUtils.fileExists(Constants.NODE_AOD_LIGHT_MODE)
